@@ -7,7 +7,7 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
-models.py
+
 class Product(models.Model):
     class RatingChoices(models.IntegerChoices):
         ZERO = 0
@@ -55,6 +55,7 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user_blocked = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text
@@ -75,4 +76,28 @@ class Order(models.Model):
     def __str__(self):
         return self.status
 
- 
+    from django.contrib.auth.models import AbstractUser
+
+
+
+    def check_for_profanity(self):
+
+        profane_words = ["haqoratli_soz1", "haqoratli_soz2", "haqoratli_soz3"]
+        content_lower = self.content.lower()
+
+        for word in profane_words:
+            if word in content_lower:
+                self.warn_user()
+                self.block_user()
+                return True
+
+        return False
+
+    def warn_user(self):
+        print(f"Ogohlantirish: Foydalanuvchi {self.user} haqoratli so'zlar ishlatgan.")
+
+    def block_user(self):
+        self.is_blocked = True
+        self.save()
+        print(f"Foydalanuvchi {self.user} bloklandi.")
+
